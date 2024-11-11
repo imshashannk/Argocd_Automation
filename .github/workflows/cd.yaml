@@ -2,12 +2,8 @@ name: CD
 
 on:
   push:
-    branches:name: CD
-
-on:
-  push:
     branches:
-      - main
+      - main  # Ensure that the indentation is correct here
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -19,26 +15,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3  # Updated to v3
 
-      # Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v2  # Updated to v2
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_KEY }}
 
-      # Build Docker image
       - name: Build Docker image
         run: docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
 
-      # Push Docker image to Docker Hub
       - name: Push Docker image
         run: docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      # Update values.yaml with the new APP_VERSION (using the GitHub commit SHA)
       - name: Update values.yaml
         run: |
           cd helm
@@ -47,41 +38,4 @@ jobs:
           git config --global user.email 'actions@github.com'
           git add values.yaml
           git commit -m "Update values.yaml with latest version"
-          git push
-
-      - main
-
-env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKERHUB_KEY: ${{ secrets.DOCKER_KEY }}
-  IMAGE_NAME: app-helm
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_KEY }}
-
-      - name: Build Docker image
-        run: docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
-
-      - name: Push Docker image
-        run: docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-      - name: Update values.yaml
-        run: |
-          cd helm
-          sed -i 's|APP_VERSION:.*|APP_VERSION: '${{ github.sha }}'|' values.yaml 
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git add values.yaml
-          git commit -m "Update values.yaml"
           git push
