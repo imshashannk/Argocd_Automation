@@ -19,6 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         id: checkout
+      
       - name: Log Checkout Status
         run: echo "Checkout completed with status: ${{ steps.checkout.outcome }}"
 
@@ -29,6 +30,7 @@ jobs:
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_KEY }}
+      
       - name: Log Docker Login Status
         run: echo "Docker login completed with status: ${{ steps.docker_login.outcome }}"
 
@@ -36,6 +38,7 @@ jobs:
       - name: Build Docker image
         id: build_image
         run: docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+      
       - name: Log Build Image Status
         run: echo "Docker build completed with status: ${{ steps.build_image.outcome }}"
 
@@ -43,6 +46,7 @@ jobs:
       - name: Push Docker image
         id: push_image
         run: docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      
       - name: Log Push Image Status
         run: echo "Docker push completed with status: ${{ steps.push_image.outcome }}"
 
@@ -57,5 +61,6 @@ jobs:
           git add values.yaml
           git commit -m "Update values.yaml with latest version" || echo "No changes to commit"
           git push || echo "Push failed, likely no changes to push"
+      
       - name: Log YAML Update Status
         run: echo "values.yaml update completed with status: ${{ steps.update_yaml.outcome }}"
