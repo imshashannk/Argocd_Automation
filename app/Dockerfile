@@ -1,6 +1,12 @@
-FROM node:16-alpine
-WORKDIR /src
-COPY . .
-RUN npm install --quiet
-EXPOSE 3000
-CMD npm start
+# Dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY app.py /app
+
+RUN pip install flask
+
+EXPOSE 80
+
+CMD ["python", "app.py"]
